@@ -5,7 +5,7 @@ const {
   getCategoryHandler,
   updateCategoryHandler,
   deleteCategoryHandler,
- } = require('../../controllers/v1/categoryController');
+} = require('../../controllers/v1/categoryController');
 const validateToken = require('../../middleware/auth');
 
 const router = express.Router();
