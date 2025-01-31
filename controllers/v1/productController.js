@@ -9,6 +9,12 @@ const createProductsHandler = async (req, res) => {
   try {
     const { name, price, description, productNumber, categoryId } = req.body;
 
+    if (!name || !price || !description || !productNumber || !categoryId) {
+      return res.status(400).json({
+        message: 'All fields are required',
+      })
+    }
+
     if (typeof name !== 'string') {
       return res.status(400).json({
         message: 'Name must be a string',
@@ -29,7 +35,7 @@ const createProductsHandler = async (req, res) => {
 
     if (typeof productNumber !== 'number') {
       return res.status(400).json({
-        message: 'Product Number must be a string',
+        message: 'Product Number must be a number',
       });
     }
     
@@ -71,7 +77,8 @@ const createProductsHandler = async (req, res) => {
 // @access Public
 const getAllProductsHandler = async (req, res) => {
   try {
-    let { search, filter } = req.query; 
+    let { search, filter } = req.query;
+    let { minPrice, maxPrice } = req.query; 
 
     if (search) {
       if (typeof search !== 'string') {
@@ -108,15 +115,36 @@ const getAllProductsHandler = async (req, res) => {
           message: 'Category not found',
         });
       }
-      
+
       const products = await Product.findAll({
         where: {
           CategoryId: category.id,
         },
         order: [['createdAt', 'DESC']],
       });
+
       return res.status(200).json(products);
-  }
+    }
+
+    if (minPrice || maxPrice) {
+      let wherePrice = {};
+        
+      if (minPrice && maxPrice) {
+        wherePrice.price = { [Op.between]: [minPrice, maxPrice] };
+      } else if (minPrice) {
+        wherePrice.price = { [Op.gte]: minPrice };
+      } else if (maxPrice) {
+        wherePrice.price = { [Op.lte]: maxPrice };
+      }
+
+      const products = await Product.findAll({
+        where: wherePrice,
+        order: [['createdAt', 'DESC']],
+      });
+
+      return res.status(200).json(products);
+    }
+
     const products = await Product.findAll();
     res.status(200).json(products);
   } catch (error) {
@@ -163,6 +191,28 @@ const getProductsHandler = async (req, res) => {
 const markProductSoldOut = async (req, res) => {
   try {
     const { id } = req.params;
+
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({
+        message: 'Product not found',
+      });
+    }
+
+    if (product.productNumber !== "0") {
+      return res.status(400).json({
+        message: 'Product still available',
+      });
+    }
+
+    await product.update({
+      productSoldOut: true,
+    });
+
+    return res.status(200).json({
+      message: 'Product successfully marked as sold',
+      product
+    });
   } catch (error) {
     return res.status(500).json({
       message: error.message,
@@ -207,5 +257,6 @@ module.exports = {
   createProductsHandler,
   getAllProductsHandler,
   getProductsHandler,
+  markProductSoldOut,
   deleteProductsHandler,
 }
