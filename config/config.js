@@ -13,6 +13,7 @@ config = {
     dialect: 'postgres'
   },
   jwtSecret: process.env.JWT_SECRET_KEY,
+  adminJwtSecret: process.env.ADMIN_JWT_SECRET_KEY
 }
 
 module.exports = config;
