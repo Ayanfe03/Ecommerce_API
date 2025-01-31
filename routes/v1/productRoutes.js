@@ -4,6 +4,7 @@ const {
   createProductsHandler,
   getAllProductsHandler,
   getProductsHandler,
+  markProductSoldOut,
   deleteProductsHandler 
 } = require('../../controllers/v1/productController');
 const validateToken = require('../../middleware/auth');
@@ -11,6 +12,7 @@ const validateToken = require('../../middleware/auth');
 router.post('', validateToken, createProductsHandler);
 router.get('', getAllProductsHandler);
 router.get('/:id', getProductsHandler);
+router.put('/sold/:id', validateToken, markProductSoldOut);
 router.delete('/:id', validateToken, deleteProductsHandler);
 
 module.exports = router;
