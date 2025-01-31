@@ -22,6 +22,15 @@ module.exports = {
           isEmail: true,
         },
       },
+      role: {
+        type: Sequelize.ENUM('buyer', 'seller', 'admin'),
+        defaultValue: 'buyer',
+        allowNull: false,
+      },
+      businessName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        },
       password: {
         type: Sequelize.STRING,
         allowNull: false
