@@ -126,6 +126,7 @@ const getAllProductsHandler = async (req, res) => {
       return res.status(200).json(products);
     }
 
+    // filter and price need to work together
     if (minPrice || maxPrice) {
       let wherePrice = {};
         

@@ -211,7 +211,7 @@ const getAllUserHandler = async (req, res) => {
 // @access Private
 const getUserHandler = async (req, res) => {
   try {
-    let { id } = req.params;
+    const { id } = req.params;
 
     if (typeof id !== 'string') {
       return res.status(400).json({
