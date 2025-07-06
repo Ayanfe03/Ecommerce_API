@@ -4,11 +4,12 @@ const User = require('../../models/User');
 
 const addItemToCart = async (req, res) => {
   const userId = req.params.userId;
-  const { productId, productQuantity} = req.body;
+  const productId = req.params.productId;
+  const productQuantity = Number(req.body.productQuantity);
 
-  if (!productId || !productQuantity || productQuantity <= 0) {
+  if (isNaN(productQuantity) || productQuantity <= 0) {
     return res.status(400).json({
-      message: 'Invalid Product or Quantity',
+      message: 'Invalid Quantity',
     });
   }
 
@@ -26,23 +27,43 @@ const addItemToCart = async (req, res) => {
     })
   }
   // check if the found product still has available quantity using the productNumber and productSoldOut fields in the Product model
-  if (product.productNumber < productQuantity || product.productSoldOut) {
+  if (productQuantity > product.productNumber || product.productSoldOut) {
     return res.status(400).json({
-      message: 'Product not available',
+      message: 'Requested quantity exceeds stock',
     });
   }
 
-  // if the product is found and has available quantity, create and save it to the cart with the productQuantity requested for
-  const cartItem = await CartItem.create({
-    userId,
-    productId,
-    productQuantity,
-  });
 
   // now update the productNumber field in the Product model to reflect the new quantity after the product has been added to the cart
-  await product.update({
-    productNumber: product.productNumber - productQuantity,
+  // await product.update({
+  //   productNumber: product.productNumber - productQuantity,
+  // });
+
+  const [cartItem, wasCreated] = await CartItem.findOrCreate({
+    where: {
+      userId,
+      productId
+    },
+    defaults: {
+      productQuantity,
+    }
   });
+
+  if (!wasCreated) {
+    if (productQuantity <= product.productNumber) {
+      console.log("Product Number")
+      cartItem.productQuantity = Number(cartItem.productQuantity);
+      cartItem.productQuantity += productQuantity;
+      await product.update({
+        productNumber: product.productNumber - productQuantity,
+      })
+      await cartItem.save();
+    } else {
+      return res.status(400).json({
+        message: "Product is not available",
+      })
+    }
+}
 
   return res.status(201).json({
     message: 'Product added to cart',
@@ -51,22 +72,22 @@ const addItemToCart = async (req, res) => {
 }
 
 // remove items from cart
-const removeItemFromCart = async (req, res) => {
-  const cartItemId = req.params.cartItemId;
+// const removeItemFromCart = async (req, res) => {
+//   const cartItemId = req.params.cartItemId;
 
-  const cartItem = await CartItem.findByPk(cartItemId);
-  if (!cartItem) {
-    return res.status(404).json({
-      message: 'Cart item not found',
-    });
-  }
+//   const cartItem = await CartItem.findByPk(cartItemId);
+//   if (!cartItem) {
+//     return res.status(404).json({
+//       message: 'Cart item not found',
+//     });
+//   }
 
-  await cartItem.destroy();
+//   await cartItem.destroy();
 
-  return res.status(200).json({
-    message: 'Cart item removed',
-  });
-}
+//   return res.status(200).json({
+//     message: 'Cart item removed',
+//   });
+// }
 
 
 // export this function to be used in the routes

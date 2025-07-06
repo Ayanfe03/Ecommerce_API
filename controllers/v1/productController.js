@@ -7,7 +7,8 @@ const Category = require('../../models/Category');
 // @access Private
 const createProductsHandler = async (req, res) => {
   try {
-    const { name, price, description, productNumber, categoryId } = req.body;
+    const { name, price, description, categoryId } = req.body;
+    const productNumber = Number(req.body.productNumber)
 
     if (!name || !price || !description || !productNumber || !categoryId) {
       return res.status(400).json({
