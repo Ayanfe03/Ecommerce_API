@@ -72,25 +72,48 @@ const addItemToCart = async (req, res) => {
 }
 
 // remove items from cart
-// const removeItemFromCart = async (req, res) => {
-//   const cartItemId = req.params.cartItemId;
+const removeItemFromCart = async (req, res) => {
+  const userId = req.params.userId;
+  const cartItemId = req.params.cartItemId;
+  const productRemovedQuantity = Number(req.body.productRemovedQuantity);
 
-//   const cartItem = await CartItem.findByPk(cartItemId);
-//   if (!cartItem) {
-//     return res.status(404).json({
-//       message: 'Cart item not found',
-//     });
-//   }
+  const cartItem = await CartItem.findByPk(cartItemId);
+  if (!cartItem) {
+    return res.status(404).json({
+      message: 'Cart item not found',
+    });
+  }
 
-//   await cartItem.destroy();
+  const user = await User.findByPk(userId);
+  if (!user) {
+    return res.status(404).json({
+      message: 'User not found'
+    })
+  }
 
-//   return res.status(200).json({
-//     message: 'Cart item removed',
-//   });
-// }
+  const product = await Product.findByPk(cartItem.productId);
+  if (!product) {
+    return res.status(404).json({
+      message: 'Product not found',
+    });
+  }
+
+  cartItem.productQuantity -= productRemovedQuantity;
+
+  // update the productNumber field in the Product model to reflect the new quantity after the product has been removed from the cart
+  product.productNumber = Number(product.productNumber) + productRemovedQuantity;
+
+  await cartItem.save();
+  await product.save();
+
+  return res.status(200).json({
+    message: 'Cart item removed',
+  });
+}
 
 
 // export this function to be used in the routes
 module.exports = {
   addItemToCart,
+  removeItemFromCart
 };
