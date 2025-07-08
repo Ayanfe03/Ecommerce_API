@@ -112,8 +112,31 @@ const removeItemFromCart = async (req, res) => {
 }
 
 
+const viewCartItems = async (req, res) => {
+  const userId = req.params.userId;
+
+  const user = await User.findByPk(userId);
+  if (!user) { 
+    console.log("User not found" );
+  }
+
+// view all items in the cart
+const cartItems = await CartItem.findAll({
+  where: {
+    userId,
+  }
+})
+
+return res.json({
+  message: 'Cart items retrieved successfully',
+  cartItems,
+})
+}
+
+
 // export this function to be used in the routes
 module.exports = {
   addItemToCart,
-  removeItemFromCart
+  removeItemFromCart,
+  viewCartItems
 };
