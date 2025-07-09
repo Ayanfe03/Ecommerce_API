@@ -196,9 +196,20 @@ const loginAdminHandler = async (req, res) => {
 // @access Private
 const getAllUserHandler = async (req, res) => {
   try {
-    const users = await User.findAll({});
-    res.status(200).json(users);
-    return;
+    const user = await User.findAll({});
+
+     const formattedUsers = user.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
+
+    res.status(200).json({
+      message: 'All Users retrieved successfully',
+      users: formattedUsers,
+    });
   } catch (error) {
     return res.status(500).json({
       message: error.message,
@@ -227,6 +238,7 @@ const getUserHandler = async (req, res) => {
     }
 
     res.status(200).json({
+      message: 'User retrieved successfully',
       id: user.id,
       name: user.name,
       email: user.email,

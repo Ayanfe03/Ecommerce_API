@@ -1,5 +1,5 @@
 const CartItem = require('../../models/cartItem');
-const Product = require('../../models/Product')
+const Product = require('../../models/Product');
 const User = require('../../models/User');
 
 const addItemToCart = async (req, res) => {
@@ -130,7 +130,7 @@ const cartItems = await CartItem.findAll({
 return res.json({
   message: 'Cart items retrieved successfully',
   cartItems,
-})
+});
 }
 
 
