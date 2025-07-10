@@ -167,8 +167,7 @@ const loginAdminHandler = async (req, res) => {
     return res.status(401).json({
       message: 'Email is invalid',
     });
-  }
-
+  }  
 
   const isPasswordValid = await bcrypt.compare(password, admin.password);
 
