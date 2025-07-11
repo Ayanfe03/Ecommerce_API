@@ -6,7 +6,7 @@ const User = require('../../models/User');
 // @desc POST Creates a Buyer
 // @route POST /v1/users/buyer
 // @access Public
-const createBuyerHandler = async (req, res) => {
+const createBuyerHandler = async (req, res) => {  
   try {
     let { name, email, password } = req.body;
 
@@ -34,11 +34,14 @@ const createBuyerHandler = async (req, res) => {
       });
     }
 
-    if (password.length < 8) {
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
       return res.status(400).json({
-        message: 'Password must be at least 8 characters'
-      });
-    }
+        message:
+        'Password must be at least 8 characters long and include at least one number and one special character',
+    });
+  }
 
     const existingUser = await User.findOne({
       where: {
@@ -112,11 +115,14 @@ const createSellerHandler = async (req, res) => {
       });
     }
 
-    if (password.length < 8) {
-      return res.status(400).json({
-        message: 'Password must be at least 8 characters'
-      });
-    }
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({
+      message:
+      'Password must be at least 8 characters long and include at least one number and one special character',
+  });
+}
 
     const existingUser = await User.findOne({
       where: {
