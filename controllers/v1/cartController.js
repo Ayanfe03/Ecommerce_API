@@ -133,10 +133,35 @@ return res.json({
 });
 }
 
+const viewCartItem = async (req, res) => {
+  const { userId } = req.params;
+  const { cartItemId} = req.params;
+
+  const user = await User.findByPk(userId);
+  if (!user) {
+    return res.status(404).json({
+      message: 'User not found'
+    })
+  }
+
+  const cart = await CartItem.findByPk(cartItemId);
+  if (!cart) {
+    return res.status(404).json({
+      message: 'Cart item not found'
+    })
+  }
+
+  return res.json({
+    message: 'Cart item retrieved successfully',
+    cart,
+  });
+}
+
 
 // export this function to be used in the routes
 module.exports = {
   addItemToCart,
   removeItemFromCart,
-  viewCartItems
+  viewCartItems,
+  viewCartItem,
 };
