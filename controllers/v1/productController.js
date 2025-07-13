@@ -222,6 +222,40 @@ const markProductSoldOut = async (req, res) => {
   }
 }
 
+const updateProductStock = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const rawValue = req.body.productUpdateBy;
+
+    const productUpdateBy = Number(rawValue);
+    if (isNaN(productUpdateBy) || productUpdateBy <= 0) {
+      return res.status(400).json({
+        message: 'Invalid Quantity',
+      });
+    }
+
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(400).json({
+        message: 'Product not found',
+      })
+    }
+
+    product.productNumber = Number(product.productNumber) + productUpdateBy;
+
+    await product.save();
+
+    return res.json({
+      message: 'Product stock successfully updated',
+    })
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    })
+  }
+}
+
 
 // @desc DELETE Delete a single product
 // @route DELETE /v1/products/:id
@@ -260,5 +294,6 @@ module.exports = {
   getAllProductsHandler,
   getProductsHandler,
   markProductSoldOut,
+  updateProductStock,
   deleteProductsHandler,
 }
