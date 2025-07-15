@@ -150,6 +150,100 @@ const createAdminHandler = async (req, res) => {
   }
 }
 
+const createUserHandler = async (req, res) => {
+  try {
+    const { adminId } = req.params;
+
+    const admin = await User.findOne({
+      where: {
+        id: adminId,
+        role: 'admin',
+      }
+    });
+    if (!admin) {
+      return res.status(404).json({
+        message: 'Admin not found',
+      });
+    }
+
+    let { name, email, password, role } = req.body;
+
+    role = role.toLowerCase()
+
+    if (!name || !email || !password || !role ) {
+      return res.status(400).json({
+      message: 'All fields are required',
+    })
+  }
+
+    if (typeof name !== 'string') {
+      return res.status(400).json({
+      message: 'Name must be a string',
+    });
+  }
+
+    if (typeof email !== 'string') {
+      return res.status(400).json({
+      message: 'Email must be a string',
+    });
+  }
+
+    if (typeof password !== 'string') {
+      return res.status(400).json({
+      message: 'Password must be a string',
+    });
+  }
+
+    if (role !== 'buyer' && role !== 'seller') {
+      return res.status(400).json({
+      message: 'User must be a buyer or seller',
+    });
+  }
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+      message:
+      'Password must be at least 8 characters long and include at least one number and one special character',
+    });
+    }
+
+    const existingUser = await User.findOne({
+      where: {
+      email,
+      }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+      message: 'Email is already in use'
+    })
+  }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      email,
+      role,
+      password: hashedPassword,
+    });
+
+    res.status(201).json({
+      message: 'Admin successfully created user',
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    })
+
+    } catch (error) {
+      return res.status(500).json({
+      message: error.message,
+    })
+  }
+}
+
 // @desc POST Login a User
 // @route POST /v1/admin/login
 // @access Public
@@ -284,6 +378,7 @@ module.exports = {
   createFirstAdminHandler,
   createAdminHandler,
   loginAdminHandler,
+  createUserHandler,
   getAllUserHandler,
   getUserHandler,
   deleteUserHandler,

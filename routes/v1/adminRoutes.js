@@ -3,6 +3,7 @@ const {
   createFirstAdminHandler,
   createAdminHandler,
   loginAdminHandler,
+  createUserHandler,
   getAllUserHandler,
   getUserHandler,
   deleteUserHandler
@@ -13,6 +14,7 @@ const adminValidateToken = require('../../middleware/authAdmin');
 router.post('/first', createFirstAdminHandler)
 router.post('', adminValidateToken, createAdminHandler);
 router.post('/login', loginAdminHandler);
+router.post('/user/:adminId', createUserHandler)
 router.get('', adminValidateToken, getAllUserHandler);
 router.get('/:id', adminValidateToken, getUserHandler);
 router.delete('/:id', adminValidateToken, deleteUserHandler);
