@@ -239,10 +239,68 @@ const loginUserHandler = async (req, res) => {
   });
 };
 
+const resetPasswordHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        message: 'Both current password and new password are required',
+      });
+    }
+
+    const user = await User.findByPk(id);
+    if (!user){
+      return res.status(404).json({
+        message: 'User not found',
+      })
+    }
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: 'Current password is invalid',
+      });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({
+        message: 'New password cannot be the same as the current password',
+      });
+    }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        message:
+        'New Password must be at least 8 characters long and include at least one number and one special character',
+    });
+  }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({
+      message: 'Password updated successfully',
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message
+    })
+  }
+}
+
 
 module.exports = {
   createBuyerHandler,
   createSellerHandler,
   updatedUserHandler,
   loginUserHandler,
+  resetPasswordHandler
 }
