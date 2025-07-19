@@ -72,7 +72,6 @@ const createProductsHandler = async (req, res) => {
   }
 }
 
-
 // @desc GET List all products with filters (category, price)
 // @route GET /v1/products
 // @access Public
@@ -222,6 +221,9 @@ const markProductSoldOut = async (req, res) => {
   }
 }
 
+// @desc PUT Update stock of a single product
+// @route PUT /v1/products/stock/:id
+// @access Private
 const updateProductStock = async (req, res) => {
   try {
     const { id } = req.params;

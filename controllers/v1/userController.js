@@ -296,7 +296,6 @@ const resetPasswordHandler = async (req, res) => {
   }
 }
 
-
 module.exports = {
   createBuyerHandler,
   createSellerHandler,

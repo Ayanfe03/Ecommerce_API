@@ -111,7 +111,6 @@ const removeItemFromCart = async (req, res) => {
   });
 }
 
-
 const viewCartItems = async (req, res) => {
   const userId = req.params.userId;
 
